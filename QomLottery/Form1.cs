@@ -30,11 +30,12 @@ namespace QomLottery
                 {
                     try
                     {
-                        numericUpDown1.Enabled = true;
+                        label1.Text = "...لطفا صبر کنید";
                         listBox1.Items.Clear();
                         BtnImport.Enabled = false;
                         dtExcel = await ReadExcel(openFileDialog.FileName); //read excel file
                         label1.Text = " تعداد شرکت کنندگان مجاز " + dtExcel.Rows.Count;
+                        numericUpDown1.Maximum = dtExcel.Rows.Count - 1;
                         BtnLottery.Enabled = true;
                         BtnImport.Enabled = true;
                     }
@@ -66,7 +67,8 @@ namespace QomLottery
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
                     //09126516617
-                    if (dataTable.Rows[i][0].ToString().Length < 10)
+                    var mobile = dataTable.Rows[i][0].ToString().Trim();
+                    if (mobile.Length < 10 || mobile.StartsWith("00"))
                     {
                         dataTable.Rows.RemoveAt(i);
                     }
@@ -79,13 +81,13 @@ namespace QomLottery
 
         private void BtnLottery_Click(object sender, EventArgs e)
         {
-            
+
             if (numericUpDown1.Value > dtExcel.Rows.Count)
             {
                 MessageBox.Show("تعداد شرکت کنندگان کمتر از تعداد قرعه کشی میباشد.");
                 return;
             }
-            numericUpDown1.Enabled = false;
+            // numericUpDown1.Enabled = false;
             listBox1.Items.Clear();
             random = new Random((int)DateTime.Now.Ticks);
             for (var i = 0; i < numericUpDown1.Value; i++)
@@ -123,6 +125,17 @@ namespace QomLottery
                 }
             }
             return false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var Result = string.Empty;
+            for (int i = 0; i < listBox1.Items.Count; i++)
+            {
+                Result += i + 1 + " - " + listBox1.Items[i].ToString() + Environment.NewLine;
+            }
+            Clipboard.SetText(Result);
+            MessageBox.Show("به حافظه منتقل شد.");
         }
     }
 }
