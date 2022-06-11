@@ -19,6 +19,7 @@ namespace QomLottery
             InitializeComponent();
         }
         DataTable dtExcel = new DataTable();
+        DataTable dtExcelSearch = new DataTable();
         public static Random random;
         private async void BtnImport_Click(object sender, EventArgs e)
         {
@@ -81,7 +82,6 @@ namespace QomLottery
 
         private void BtnLottery_Click(object sender, EventArgs e)
         {
-
             if (numericUpDown1.Value > dtExcel.Rows.Count)
             {
                 MessageBox.Show("تعداد شرکت کنندگان کمتر از تعداد قرعه کشی میباشد.");
@@ -133,6 +133,89 @@ namespace QomLottery
             for (int i = 0; i < listBox1.Items.Count; i++)
             {
                 Result += i + 1 + " - " + listBox1.Items[i].ToString() + Environment.NewLine;
+            }
+            Clipboard.SetText(Result);
+            MessageBox.Show("به حافظه منتقل شد.");
+        }
+
+        private async void BtnImportExcel_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string fileExt = Path.GetExtension(openFileDialog.FileName); //get the file extension
+                if (fileExt.CompareTo(".xls") == 0 || fileExt.CompareTo(".xlsx") == 0)
+                {
+                    try
+                    {
+                        label4.Text = "...لطفا صبر کنید";
+                        listBox2.Items.Clear();
+                        BtnImportExcel.Enabled = false;
+                        dtExcelSearch = await ReadExcel(openFileDialog.FileName); //read excel file
+                        label4.Text = " تعداد شرکت کنندگان مجاز " + dtExcelSearch.Rows.Count;
+                        numericUpDown2.Maximum = dtExcelSearch.Rows.Count ;
+                        BtnSearch.Enabled = true;
+                        numericUpDown2.Enabled = true;
+                        BtnImportExcel.Enabled = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message.ToString());
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please choose .xls or .xlsx file only.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error); //custom messageBox to show error
+                }
+            }
+        }
+        private bool IsFoundLottery(string val)
+        {
+            for (int i = 0; i < listBox2.Items.Count; i++)
+            {
+                if (listBox2.Items[i].ToString() == val)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private void BtnSearch_Click(object sender, EventArgs e)
+        {
+            if (numericUpDown2.Value > dtExcelSearch.Rows.Count)
+            {
+                MessageBox.Show("این شماره موجود نیست.");
+                return;
+            }
+            if (numericUpDown2.Value > 0)
+            {
+                int index = Convert.ToInt32(numericUpDown2.Value) ;
+                var lottery = index + " :شماره برنده خوش شانش " + "\n" + dtExcelSearch.Rows[index -1][0].ToString() + " :موبایل " + "\n" +
+                    dtExcelSearch.Rows[index - 1][1].ToString() + " :کد نوسازی " + "\n";
+
+                if (!IsFoundLottery(lottery))
+                {
+                    listBox2.Items.Add(lottery);
+                    ShowLottery showLottery = new ShowLottery(lottery);
+                    showLottery.ShowDialog();
+                }
+                else
+                {
+                    MessageBox.Show("این مورد قبلا انتخاب شده است.");
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (listBox2.Items.Count <=0)
+            {
+                return;
+            }
+            var Result = string.Empty;
+            for (int i = 0; i < listBox2.Items.Count; i++)
+            {
+                Result += i + 1 + " - " + listBox2.Items[i].ToString() + Environment.NewLine;
             }
             Clipboard.SetText(Result);
             MessageBox.Show("به حافظه منتقل شد.");
