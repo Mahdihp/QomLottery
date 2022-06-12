@@ -66,15 +66,14 @@ namespace QomLottery
             TextWriter txt = null;
             if (type==1)
             {
-                File.AppendAllText("C:\\LotteryResult.txt", lottery + Environment.NewLine);
-
+                File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) +"\\LotteryResult.txt", lottery + Environment.NewLine);
                 //txt = new StreamWriter("C:\\LotteryResult.txt");
                 //txt.Write(lottery);
                 //txt.Close();
             }
             else
             {
-                File.AppendAllText("C:\\LotterySelectionResult.txt", lottery + Environment.NewLine);
+                File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotterySelectionResult.txt", lottery + Environment.NewLine);
             }
            
         }

@@ -266,6 +266,7 @@ namespace QomLottery
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //var tt = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             //OptLottery = new UtilLottrey();
             //OptLottery.SaveReslt("werwerwerwerw", 1);
         }
