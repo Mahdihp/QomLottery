@@ -19,7 +19,7 @@ namespace QomLottery
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            //Application.Run(new ShowLottery("شهرداری قم "+"\n"+"برنده خوش شاش"+ "\n" + "منشسیتبمسنیت س"+ "\n" + "یبلایبلایبلایبلایبلا"+ "\n" + "یبلایبلایبلایبلابیل"));
+           // Application.Run(new ShowLottery("شهرداری قم "+"\n"+"برنده خوش شاش"+ "\n" + "منشسیتبمسنیت س"+ "\n" + "یبلایبلایبلایبلایبلا"+ "\n" + "یبلایبلایبلایبلابیل"));
         }
     }
 }

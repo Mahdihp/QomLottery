@@ -25,7 +25,7 @@ namespace QomLottery
             label1.Visible = false;
             SetLocation();
             await Task.Delay(3000);
-           
+
             label1.Visible = true;
             button1.Visible = true;
             label1.Text = LotteryFound;
@@ -35,23 +35,23 @@ namespace QomLottery
             pictureBox1.Height = this.Height;
             pictureBox1.Width = this.Width;
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-           
+
         }
 
         private void SetLocation()
         {
-            var xl = (this.Width / 2) - (label1.Width / 2);
-            var yl = (this.Height / 2) - (label1.Height + label1.Height);
+            //var xl = (this.Width / 2) - (label1.Width / 2);
+            //var yl = (this.Height / 2) - (label1.Height + label1.Height);
 
-            var xb = (this.Width / 2) - (button1.Width / 2);
-            var yb = (this.Height / 2) - (button1.Height /5);
+            //var xb = (this.Width / 2) - (button1.Width / 2);
+            //var yb = (this.Height / 2) - (button1.Height /5);
 
             var xp = (this.Width / 2) - (pictureBox1.Width / 2);
             var yp = (this.Height / 2) - (pictureBox1.Height / 2);
-            label1.Size = new Size(this.Width, this.Height / 2);
+            label1.Size = new Size(this.Width, label1.Height + label1.Height);
             pictureBox1.Location = new Point(xp, yp);
-           // label1.Location = new Point(xl, yl);
-          //  button1.Location = new Point(xb, yb);
+            // label1.Location = new Point(xl, yl);
+            //  button1.Location = new Point(xb, yb);
         }
 
         private void button1_Click(object sender, EventArgs e)
