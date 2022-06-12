@@ -20,6 +20,9 @@ namespace QomLottery
 
             InitializeComponent();
         }
+        //32861
+        public UtilLottrey _OptLottery { get; set; }
+        public UtilLottrey _OptSelection { get; set; }
         DataTable dtExcel = new DataTable();
         DataTable dtExcelSearch = new DataTable();
         public static Random random;
@@ -38,9 +41,10 @@ namespace QomLottery
                         BtnImport.Enabled = false;
                         var progress = new System.Progress<int>(update =>
                         {
-                            label1.Text = update + ":تعداد ردیف های خوانده شده";
+                            label1.Text = update + ":فیش های خوانده شده";
                         });
-                        dtExcel = await ReadExcel(openFileDialog.FileName, progress); //read excel file
+                        _OptLottery = new UtilLottrey();
+                        dtExcel = await _OptLottery.ReadExcel(openFileDialog.FileName, progress);
                         label1.Text = " تعداد شرکت کنندگان مجاز " + dtExcel.Rows.Count;
                         numericUpDown1.Maximum = dtExcel.Rows.Count - 1;
                         BtnLottery.Enabled = true;
@@ -49,121 +53,29 @@ namespace QomLottery
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message.ToString());
+                        numericUpDown1.Enabled = true;
+                        BtnLottery.Enabled = true;
+                        BtnImport.Enabled = true;
                     }
                 }
                 else
                 {
                     MessageBox.Show("Please choose .xls or .xlsx file only.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error); //custom messageBox to show error
+                    numericUpDown1.Enabled = true;
+                    BtnLottery.Enabled = true;
+                    BtnImport.Enabled = true;
                 }
-            }
-        }
-        //public static Task<FastExcel.Worksheet> ReadExcel2(string fileName)
-        //{
-        //    return Task.Run(() => {
-
-        //       FastExcel.Worksheet worksheet = null;
-        //        var inputFile = new FileInfo(fileName);
-        //        // Create an instance of Fast Excel
-        //        using (FastExcel.FastExcel fastExcel = new FastExcel.FastExcel(inputFile, true))
-        //        {
-        //            // Read the rows using worksheet name
-        //            worksheet = fastExcel.Read("sheet1");
-
-        //            // Read the rows using the worksheet index
-        //            // Worksheet indexes are start at 1 not 0
-        //            // This method is slightly faster to find the underlying file (so slight you probably wouldn't notice)
-        //           return worksheet = fastExcel.Read(1);
-        //        }
-
-        //    });
-        //}
-
-        public Task<DataTable> ReadExcel(string fileName, IProgress<int> progress)
-        {
-            return Task.Run(() =>
-            {
-                DataTable dataTable = new DataTable();
-                using (SpreadsheetDocument spreadSheetDocument = SpreadsheetDocument.Open(fileName, false))
-                {
-                    WorkbookPart workbookPart = spreadSheetDocument.WorkbookPart;
-                    IEnumerable<Sheet> sheets = spreadSheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>();
-                    string relationshipId = sheets.First().Id.Value;
-                    WorksheetPart worksheetPart = (WorksheetPart)spreadSheetDocument.WorkbookPart.GetPartById(relationshipId);
-                    Worksheet workSheet = worksheetPart.Worksheet;
-                    SheetData sheetData = workSheet.GetFirstChild<SheetData>();
-                    IEnumerable<Row> rows = sheetData.Descendants<Row>();
-
-                    foreach (Cell cell in rows.ElementAt(0))
-                    {
-                        dataTable.Columns.Add(GetCellValue(spreadSheetDocument, cell));
-                    }
-                    int Index = 1;
-                    foreach (Row row in rows)
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        for (int i = 0; i < row.Descendants<Cell>().Count(); i++)
-                        {
-                            dataRow[i] = GetCellValue(spreadSheetDocument, row.Descendants<Cell>().ElementAt(i));
-                        }
-                        dataTable.Rows.Add(dataRow);
-                        if (progress != null)
-                        {
-                            progress.Report(Index);
-                        }
-                        Index++;
-                    }
-
-                }
-
-                dataTable.Rows.RemoveAt(0);
-                for (int i = 0; i < dataTable.Rows.Count; i++)
-                {
-                    //09126516617
-                    var mobile = dataTable.Rows[i][0].ToString().Trim();
-                    if (mobile.Length < 10 || mobile.StartsWith("00"))
-                    {
-                        dataTable.Rows.RemoveAt(i);
-                    }
-                }
-                return dataTable;
-            });
-        }
-        private static string GetCellValue(SpreadsheetDocument document, Cell cell)
-        {
-            SharedStringTablePart stringTablePart = document.WorkbookPart.SharedStringTablePart;
-            string value = cell.CellValue?.InnerXml;
-
-            if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
-            {
-                return stringTablePart.SharedStringTable.ChildElements[Int32.Parse(value)].InnerText;
             }
             else
             {
-                return value;
+                numericUpDown1.Enabled = true;
+                BtnLottery.Enabled = true;
+                BtnImport.Enabled = true;
             }
         }
-        private async Task<DataTable> ReadExcel(string fileName)
-        {
-            return await Task.Run(() =>
-            {
-                IronXL.License.LicenseKey = IronXLKeygen.GenerateKey();
-                IronXL.WorkBook workbook = IronXL.WorkBook.Load(fileName);
-                IronXL.WorkSheet sheet = workbook.DefaultWorkSheet;
-                DataTable dataTable = sheet.ToDataTable(true);
-                for (int i = 0; i < dataTable.Rows.Count; i++)
-                {
-                    //09126516617
-                    var mobile = dataTable.Rows[i][0].ToString().Trim();
-                    if (mobile.Length < 10 || mobile.StartsWith("00"))
-                    {
-                        dataTable.Rows.RemoveAt(i);
-                    }
-                }
 
-                return dataTable;
-            });
 
-        }
+
 
         private void BtnLottery_Click(object sender, EventArgs e)
         {
@@ -181,13 +93,23 @@ namespace QomLottery
                 while (IsFound == false)
                 {
                     var r = random.Next(0, dtExcel.Rows.Count);
-                    var val = dtExcel.Rows[r][4].ToString();
+                    var val = dtExcel.Rows[r][3].ToString();
                     IsFound = IsFoundToList(val);
                     if (IsFound == false)
                     {
-                        listBox1.Items.Add(dtExcel.Rows[r][4].ToString());
+                        if (_OptLottery != null)
+                        {
+
+                            _OptLottery.SaveReslt(dtExcel.Rows[r][3].ToString() + "-" + dtExcel.Rows[r][2].ToString(), 1);
+                        }
+                        else
+                        {
+                            _OptLottery = new UtilLottrey();
+                            _OptLottery.SaveReslt(dtExcel.Rows[r][3].ToString() + "-" + dtExcel.Rows[r][2].ToString(), 1);
+                        }
+                        listBox1.Items.Add(dtExcel.Rows[r][3].ToString());
                         dtExcel.Rows.RemoveAt(r);
-                        label1.Text = " تعداد شرکت کنندگان مجاز " + dtExcel.Rows.Count;
+                        label1.Text = " :تعداد شرکت کنندگان مجاز " + dtExcel.Rows.Count;
                         IsFound = true;
                     }
                     else
@@ -203,7 +125,6 @@ namespace QomLottery
         {
             for (int i = 0; i < listBox1.Items.Count; i++)
             {
-
                 if (listBox1.Items[i].ToString() == val)
                 {
                     return true;
@@ -214,13 +135,7 @@ namespace QomLottery
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var Result = string.Empty;
-            for (int i = 0; i < listBox1.Items.Count; i++)
-            {
-                Result += i + 1 + " - " + listBox1.Items[i].ToString() + Environment.NewLine;
-            }
-            Clipboard.SetText(Result);
-            MessageBox.Show("به حافظه منتقل شد.");
+
         }
 
         private async void BtnImportExcel_Click(object sender, EventArgs e)
@@ -238,9 +153,10 @@ namespace QomLottery
                         BtnImportExcel.Enabled = false;
                         var progress = new System.Progress<int>(update =>
                         {
-                            label4.Text = update + ":تعداد ردیف های خوانده شده";
+                            label4.Text = update + ":فیش های خوانده شده";
                         });
-                        dtExcelSearch = await ReadExcel(openFileDialog.FileName, progress); //read excel file
+                        _OptSelection = new UtilLottrey();
+                        dtExcelSearch = await _OptSelection.ReadExcel(openFileDialog.FileName, progress); //read excel file
                         label4.Text = " تعداد شرکت کنندگان مجاز " + dtExcelSearch.Rows.Count;
                         numericUpDown2.Maximum = dtExcelSearch.Rows.Count;
                         BtnSearch.Enabled = true;
@@ -250,12 +166,24 @@ namespace QomLottery
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message.ToString());
+                        BtnSearch.Enabled = true;
+                        numericUpDown2.Enabled = true;
+                        BtnImportExcel.Enabled = true;
                     }
                 }
                 else
                 {
                     MessageBox.Show("Please choose .xls or .xlsx file only.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error); //custom messageBox to show error
+                    BtnSearch.Enabled = true;
+                    numericUpDown2.Enabled = true;
+                    BtnImportExcel.Enabled = true;
                 }
+            }
+            else
+            {
+                BtnSearch.Enabled = true;
+                numericUpDown2.Enabled = true;
+                BtnImportExcel.Enabled = true;
             }
         }
         private bool IsFoundLottery(string val)
@@ -279,12 +207,28 @@ namespace QomLottery
             if (numericUpDown2.Value > 0)
             {
                 int index = Convert.ToInt32(numericUpDown2.Value);
-                var lottery = index + " :شماره برنده خوش شانش " + "\n" + dtExcelSearch.Rows[index - 1][4].ToString() + " :شماره فیش " + "\n" +
-                    dtExcelSearch.Rows[index - 1][1].ToString() + " :کد نوسازی " + "\n";
+               var lottery = index + " :شماره " + "\n"
+                    + dtExcelSearch.Rows[index - 1][3].ToString() + " :شماره فیش " + "\n"
+                    + dtExcelSearch.Rows[index - 1][1].ToString() + " :کد نوسازی " + "\n";
 
                 if (!IsFoundLottery(lottery))
                 {
+                    if (_OptSelection != null)
+                    {
+                        _OptSelection.SaveReslt(lottery, 2);
+                    }
+                    else
+                    {
+                        _OptSelection = new UtilLottrey();
+                        _OptSelection.SaveReslt(lottery, 2);
+                    }
                     listBox2.Items.Add(lottery);
+                    
+                    lottery = "شهرداری قم" + "\n";
+                    lottery += "برنده خوش شانش" + "\n";
+                    lottery += index + " :شماره " + "\n"
+                        + dtExcelSearch.Rows[index - 1][3].ToString() + " :شماره فیش " + "\n"
+                        + dtExcelSearch.Rows[index - 1][1].ToString() + " :کد نوسازی " + "\n";
                     ShowLottery showLottery = new ShowLottery(lottery);
                     showLottery.ShowDialog();
                 }
@@ -294,6 +238,8 @@ namespace QomLottery
                 }
             }
         }
+
+
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -320,12 +266,50 @@ namespace QomLottery
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            //OptLottery = new UtilLottrey();
+            //OptLottery.SaveReslt("werwerwerwerw", 1);
         }
 
         private void tabPage2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            var Result = string.Empty;
+            if (listBox1.Items.Count <= 0)
+            {
+                return;
+            }
+            for (int i = 0; i < listBox1.Items.Count; i++)
+            {
+                Result += i + 1 + " - " + listBox1.Items[i].ToString() + Environment.NewLine;
+            }
+            Clipboard.SetText(Result);
+            MessageBox.Show("به حافظه منتقل شد.");
+        }
+
+        private void BtnLotteryCancel_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("آیا مایل به توقف عملیات ورود هستید؟", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                if (_OptLottery != null)
+                {
+                    _OptLottery.OptLottery = true;
+                }
+            }
+        }
+
+        private void BtnSelectionCancel_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("آیا مایل به توقف عملیات ورود هستید؟", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                if (_OptSelection != null)
+                {
+                    _OptSelection.OptLottery = true;
+                }
+            }
         }
     }
 }

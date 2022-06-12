@@ -100,6 +100,7 @@
     <Compile Include="ShowLottery.Designer.cs">
       <DependentUpon>ShowLottery.cs</DependentUpon>
     </Compile>
+    <Compile Include="UtilLottrey.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

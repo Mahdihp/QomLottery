@@ -35,6 +35,7 @@ namespace QomLottery
             pictureBox1.Height = this.Height;
             pictureBox1.Width = this.Width;
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+           
         }
 
         private void SetLocation()
@@ -47,15 +48,23 @@ namespace QomLottery
 
             var xp = (this.Width / 2) - (pictureBox1.Width / 2);
             var yp = (this.Height / 2) - (pictureBox1.Height / 2);
-
+            label1.Size = new Size(this.Width, this.Height / 2);
             pictureBox1.Location = new Point(xp, yp);
-            label1.Location = new Point(xl, yl);
-            button1.Location = new Point(xb, yb);
+           // label1.Location = new Point(xl, yl);
+          //  button1.Location = new Point(xb, yb);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ShowLottery_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Escape)
+            {
+                this.Close();
+            }
         }
     }
 }
