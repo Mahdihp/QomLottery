@@ -23,7 +23,8 @@ namespace QomLottery
         //32861
         public UtilLottrey _OptLottery { get; set; }
         public UtilLottrey _OptSelection { get; set; }
-        DataTable dtExcel = new DataTable();
+        DataTable dtExcelLottery = new DataTable();
+        DataTable dtExcelLottery_Removed = new DataTable();
         DataTable dtExcelSearch = new DataTable();
         public static Random random;
         private async void BtnImport_Click(object sender, EventArgs e)
@@ -44,9 +45,16 @@ namespace QomLottery
                             label1.Text = update + ":فیش های خوانده شده";
                         });
                         _OptLottery = new UtilLottrey();
-                        dtExcel = await _OptLottery.ReadExcel(openFileDialog.FileName, progress);
-                        label1.Text = " تعداد شرکت کنندگان مجاز " + dtExcel.Rows.Count;
-                        numericUpDown1.Maximum = dtExcel.Rows.Count - 1;
+                        _OptLottery.CreateFileHistory();
+                        dtExcelLottery = await _OptLottery.ReadExcel(openFileDialog.FileName, progress);
+                        dtExcelLottery_Removed = dtExcelLottery;
+                        for (int i = 0; i < dtExcelLottery.Rows.Count; i++)
+                        {
+                            dtExcelLottery_Removed.Rows.RemoveAt(i);
+
+                        }
+                        label1.Text = " تعداد شرکت کنندگان مجاز " + dtExcelLottery.Rows.Count;
+                        numericUpDown1.Maximum = dtExcelLottery.Rows.Count - 1;
                         BtnLottery.Enabled = true;
                         BtnImport.Enabled = true;
                     }
@@ -79,7 +87,7 @@ namespace QomLottery
 
         private void BtnLottery_Click(object sender, EventArgs e)
         {
-            if (numericUpDown1.Value > dtExcel.Rows.Count)
+            if (numericUpDown1.Value > dtExcelLottery.Rows.Count)
             {
                 MessageBox.Show("تعداد شرکت کنندگان کمتر از تعداد قرعه کشی میباشد.");
                 return;
@@ -92,24 +100,25 @@ namespace QomLottery
                 bool IsFound = false;
                 while (IsFound == false)
                 {
-                    var r = random.Next(0, dtExcel.Rows.Count);
-                    var val = dtExcel.Rows[r][3].ToString();
+                    var r = random.Next(0, dtExcelLottery.Rows.Count);
+                    var val = dtExcelLottery.Rows[r][3].ToString();
                     IsFound = IsFoundToList(val);
                     if (IsFound == false)
                     {
                         if (_OptLottery != null)
                         {
-
-                            _OptLottery.SaveReslt(dtExcel.Rows[r][3].ToString() + "-" + dtExcel.Rows[r][2].ToString(), 1);
+                            _OptLottery.SaveReslt(dtExcelLottery.Rows[r][3].ToString(), 1, false);
                         }
                         else
                         {
                             _OptLottery = new UtilLottrey();
-                            _OptLottery.SaveReslt(dtExcel.Rows[r][3].ToString() + "-" + dtExcel.Rows[r][2].ToString(), 1);
+                            _OptLottery.SaveReslt(dtExcelLottery.Rows[r][3].ToString(), 1, false);
                         }
-                        listBox1.Items.Add(dtExcel.Rows[r][3].ToString());
-                        dtExcel.Rows.RemoveAt(r);
-                        label1.Text = " :تعداد شرکت کنندگان مجاز " + dtExcel.Rows.Count;
+                        listBox1.Items.Add(dtExcelLottery.Rows[r][3].ToString());
+                      //  var row = dtExcelLottery.Rows[r];
+                       // dtExcelLottery_Removed.Rows.Add(row);
+                        dtExcelLottery.Rows.RemoveAt(r);
+                        label1.Text = " :تعداد شرکت کنندگان مجاز " + dtExcelLottery.Rows.Count;
                         IsFound = true;
                     }
                     else
@@ -156,6 +165,7 @@ namespace QomLottery
                             label4.Text = update + ":فیش های خوانده شده";
                         });
                         _OptSelection = new UtilLottrey();
+                        _OptSelection.CreateFileHistory();
                         dtExcelSearch = await _OptSelection.ReadExcel(openFileDialog.FileName, progress); //read excel file
                         label4.Text = " تعداد شرکت کنندگان مجاز " + dtExcelSearch.Rows.Count;
                         numericUpDown2.Maximum = dtExcelSearch.Rows.Count;
@@ -207,23 +217,23 @@ namespace QomLottery
             if (numericUpDown2.Value > 0)
             {
                 int index = Convert.ToInt32(numericUpDown2.Value);
-               var lottery = index + " :شماره " + "\n"
-                    + dtExcelSearch.Rows[index - 1][3].ToString() + " :شماره فیش " + "\n"
-                    + dtExcelSearch.Rows[index - 1][1].ToString() + " :کد نوسازی " + "\n";
+                var lottery = index + " :شماره "
+                    + dtExcelSearch.Rows[index - 1][3].ToString() + " :شماره فیش "
+                     + dtExcelSearch.Rows[index - 1][1].ToString() + " :کد نوسازی " + "\n";
 
                 if (!IsFoundLottery(lottery))
                 {
                     if (_OptSelection != null)
                     {
-                        _OptSelection.SaveReslt(lottery, 2);
+                        _OptSelection.SaveReslt(lottery, 2, false);
                     }
                     else
                     {
                         _OptSelection = new UtilLottrey();
-                        _OptSelection.SaveReslt(lottery, 2);
+                        _OptSelection.SaveReslt(lottery, 2, false);
                     }
                     listBox2.Items.Add(lottery);
-                    
+
                     lottery = "شهرداری قم" + "\n";
                     lottery += "برنده خوش شانش" + "\n";
                     lottery += index + " :شماره " + "\n"
@@ -309,6 +319,54 @@ namespace QomLottery
                 if (_OptSelection != null)
                 {
                     _OptSelection.OptLottery = true;
+                }
+            }
+        }
+
+        private void BtnRemoveLottery_Click(object sender, EventArgs e)
+        {
+            if (listBox1.Items.Count > 0)
+            {
+                if (MessageBox.Show("آیا مایل به حذف هستید؟", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    var item = listBox1.Items[listBox1.SelectedIndex].ToString();
+                    listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+                    if (_OptLottery != null)
+                    {
+                        var text = "";
+                        for (int i = 0; i < listBox1.Items.Count; i++)
+                        {
+                            text += listBox1.Items[i].ToString() + "\n";
+                        }
+                        _OptLottery.SaveReslt(text, 1, true);
+                        //for (int i = 0; i < dtExcelLottery_Removed.Rows.Count; i++)
+                        //{
+                        //    if (dtExcelLottery_Removed.Rows[i][3].ToString() == item)
+                        //    {
+                        //        dtExcelLottery.Rows.Add(dtExcelLottery_Removed.Rows[i]);
+                        //    }
+                        //}
+                    }
+                }
+            }
+        }
+
+        private void BtnRemoveSelection_Click(object sender, EventArgs e)
+        {
+            if (listBox2.Items.Count > 0)
+            {
+                if (MessageBox.Show("آیا مایل به حذف هستید؟", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    listBox2.Items.RemoveAt(listBox2.SelectedIndex);
+                    if (_OptSelection != null)
+                    {
+                        var text = "";
+                        for (int i = 0; i < listBox2.Items.Count; i++)
+                        {
+                            text += listBox2.Items[i].ToString() + "\n";
+                        }
+                        _OptSelection.SaveReslt(text, 2, true);
+                    }
                 }
             }
         }

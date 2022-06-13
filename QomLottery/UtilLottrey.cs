@@ -12,6 +12,8 @@ namespace QomLottery
 {
     public class UtilLottrey
     {
+        string Path1 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotteryResult.txt";
+        string Path2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotterySelectionResult.txt";
         public bool OptLottery { get; set; } = false;
         public Task<DataTable> ReadExcel(string fileName, IProgress<int> progress)
         {
@@ -61,19 +63,48 @@ namespace QomLottery
                 return dataTable;
             });
         }
-        public void SaveReslt(string lottery, int type)
+        public void CreateFileHistory()
         {
+            if (!File.Exists(Path1))
+            {
+                File.Create(Path1);
+            }
+            if (!File.Exists(Path2))
+            {
+                File.Create(Path2);
+            }
+        }
+        public void SaveReslt(string lottery, int type, bool IsNewSave)
+        {
+
             TextWriter txt = null;
             if (type == 1)
             {
-                File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotteryResult.txt", lottery + Environment.NewLine);
-                //txt = new StreamWriter("C:\\LotteryResult.txt");
-                //txt.Write(lottery);
-                //txt.Close();
+                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotteryResult.txt", lottery + Environment.NewLine);
+                string myString = "";
+                if (IsNewSave == false)
+                {
+                    StreamReader sr = new StreamReader(Path1);
+                    myString = sr.ReadToEnd();
+                    sr.Close();
+                }
+                StreamWriter sw = new StreamWriter(Path1);
+                sw.WriteLine(myString + "\n" + lottery + "\n");
+                sw.Close();
             }
             else
             {
-                File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotterySelectionResult.txt", lottery + Environment.NewLine);
+                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\LotterySelectionResult.txt", lottery + Environment.NewLine);
+                string myString = "";
+                if (IsNewSave == false)
+                {
+                    StreamReader sr = new StreamReader(Path2);
+                    myString = sr.ReadToEnd();
+                    sr.Close();
+                }
+                StreamWriter sw = new StreamWriter(Path2);
+                sw.WriteLine(myString + "\n" + lottery + "\n");
+                sw.Close();
             }
 
         }
@@ -101,7 +132,7 @@ namespace QomLottery
                 DataTable dataTable = sheet.ToDataTable(true);
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
-                    //09126516617
+                //09126516617
                     var mobile = dataTable.Rows[i][0].ToString().Trim();
                     if (mobile.Length < 10 || mobile.StartsWith("00"))
                     {

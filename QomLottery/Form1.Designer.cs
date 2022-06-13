@@ -35,10 +35,12 @@
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.BtnRemoveLottery = new System.Windows.Forms.Button();
             this.BtnLottery = new System.Windows.Forms.Button();
             this.BtnLotteryCancel = new System.Windows.Forms.Button();
             this.BtnImport = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.BtnRemoveSelection = new System.Windows.Forms.Button();
             this.BtnSelectionCancel = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.listBox2 = new System.Windows.Forms.ListBox();
@@ -83,6 +85,7 @@
             this.tabPage1.Controls.Add(this.numericUpDown1);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.label1);
+            this.tabPage1.Controls.Add(this.BtnRemoveLottery);
             this.tabPage1.Controls.Add(this.BtnLottery);
             this.tabPage1.Controls.Add(this.BtnLotteryCancel);
             this.tabPage1.Controls.Add(this.BtnImport);
@@ -121,11 +124,23 @@
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Vazirmatn FD", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(200, 81);
+            this.label1.Location = new System.Drawing.Point(144, 69);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(392, 54);
+            this.label1.Size = new System.Drawing.Size(499, 54);
             this.label1.TabIndex = 4;
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // BtnRemoveLottery
+            // 
+            this.BtnRemoveLottery.Font = new System.Drawing.Font("Vazirmatn", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnRemoveLottery.Location = new System.Drawing.Point(8, 80);
+            this.BtnRemoveLottery.Name = "BtnRemoveLottery";
+            this.BtnRemoveLottery.Size = new System.Drawing.Size(84, 54);
+            this.BtnRemoveLottery.TabIndex = 1;
+            this.BtnRemoveLottery.Text = "حذف از لیست";
+            this.BtnRemoveLottery.UseVisualStyleBackColor = true;
+            this.BtnRemoveLottery.Visible = false;
+            this.BtnRemoveLottery.Click += new System.EventHandler(this.BtnRemoveLottery_Click);
             // 
             // BtnLottery
             // 
@@ -163,6 +178,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.BtnRemoveSelection);
             this.tabPage2.Controls.Add(this.BtnSelectionCancel);
             this.tabPage2.Controls.Add(this.label4);
             this.tabPage2.Controls.Add(this.listBox2);
@@ -178,6 +194,17 @@
             this.tabPage2.Text = "قرعه کشی براساس شماره";
             this.tabPage2.UseVisualStyleBackColor = true;
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
+            // 
+            // BtnRemoveSelection
+            // 
+            this.BtnRemoveSelection.Font = new System.Drawing.Font("Vazirmatn", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnRemoveSelection.Location = new System.Drawing.Point(178, 81);
+            this.BtnRemoveSelection.Name = "BtnRemoveSelection";
+            this.BtnRemoveSelection.Size = new System.Drawing.Size(84, 52);
+            this.BtnRemoveSelection.TabIndex = 11;
+            this.BtnRemoveSelection.Text = "حذف از لیست";
+            this.BtnRemoveSelection.UseVisualStyleBackColor = true;
+            this.BtnRemoveSelection.Click += new System.EventHandler(this.BtnRemoveSelection_Click);
             // 
             // BtnSelectionCancel
             // 
@@ -296,6 +323,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button BtnLotteryCancel;
         private System.Windows.Forms.Button BtnSelectionCancel;
+        private System.Windows.Forms.Button BtnRemoveLottery;
+        private System.Windows.Forms.Button BtnRemoveSelection;
     }
 }
 
