@@ -24,7 +24,7 @@ namespace QomLottery
         public UtilLottrey _OptLottery { get; set; }
         public UtilLottrey _OptSelection { get; set; }
         DataTable dtExcelLottery = new DataTable();
-        DataTable dtExcelLottery_Removed = new DataTable();
+       // DataTable dtExcelLottery_Removed = new DataTable();
         DataTable dtExcelSearch = new DataTable();
         public static Random random;
         private async void BtnImport_Click(object sender, EventArgs e)
@@ -47,12 +47,7 @@ namespace QomLottery
                         _OptLottery = new UtilLottrey();
                         _OptLottery.CreateFileHistory();
                         dtExcelLottery = await _OptLottery.ReadExcel(openFileDialog.FileName, progress);
-                        dtExcelLottery_Removed = dtExcelLottery;
-                        for (int i = 0; i < dtExcelLottery.Rows.Count; i++)
-                        {
-                            dtExcelLottery_Removed.Rows.RemoveAt(i);
-
-                        }
+                        //dtExcelLottery_Removed = dtExcelLottery;
                         label1.Text = " تعداد شرکت کنندگان مجاز " + dtExcelLottery.Rows.Count;
                         numericUpDown1.Maximum = dtExcelLottery.Rows.Count - 1;
                         BtnLottery.Enabled = true;
